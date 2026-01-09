@@ -1,0 +1,316 @@
+{
+  "name": "Expense Tracker",
+  "nodes": [
+    {
+      "parameters": {
+        "text": "={{ $json.message.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "cost",
+              "type": "number",
+              "description": "this is the cost of expense or income",
+              "required": true
+            },
+            {
+              "name": "description",
+              "description": "this is the description for the expense or income",
+              "required": true
+            },
+            {
+              "name": "date",
+              "type": "date",
+              "description": "this is the date of operation",
+              "required": true
+            },
+            {
+              "name": "type",
+              "description": "expense or income",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        2720,
+        496
+      ],
+      "id": "aa970007-7f8b-4df9-8d89-86b4e888c398",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        720
+      ],
+      "id": "41c7c509-29e8-4c92-b4d0-186b06038ac6",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xuGpuWhAK06H08IL",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1MARN2nlZjuhdyEi-vA_jGZx70wHYICUQLY1Z74Vci9M",
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MARN2nlZjuhdyEi-vA_jGZx70wHYICUQLY1Z74Vci9M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MARN2nlZjuhdyEi-vA_jGZx70wHYICUQLY1Z74Vci9M/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Description": "={{ $json.output.description }}",
+            "Cost": "={{ $json.output.cost }}",
+            "Date": "={{ $json.output.date }}",
+            "Type": "={{ $json.output.type }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cost",
+              "displayName": "Cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3072,
+        496
+      ],
+      "id": "8db711d4-4694-4103-ad24-c1b4a18f3c06",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NY9XdJ4UbDTVwYNo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "6be67ba9-6fc4-45db-8463-e279ff49d3b7",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        2496,
+        496
+      ],
+      "webhookId": "ad99b9b0-74b2-4c78-bd50-941d8067a98f",
+      "credentials": {
+        "telegramApi": {
+          "id": "OELNfQgvMPd9iq0i",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "=Expense saved! {{ $json.expenseType === 'expense' ? '💸' : '💰' }} {{ $json.expenseDescription }} - ${{ $json.expenseCost }}\n\n📊 Summary:\n💰 Total Income: ${{ $json.totalIncome }}\n💸 Total Expenses: ${{ $json.totalExpense }}\n📈 Balance: ${{ $json.balance }}\n📝 Total Transactions: {{ $json.transactionCount }}",
+        "additionalFields": {}
+      },
+      "id": "c772bd7e-b6a2-47fd-b662-52f69acc296b",
+      "name": "Send Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3744,
+        496
+      ],
+      "webhookId": "de615add-4fb3-4b9f-bfe1-8357fcd8ff15",
+      "credentials": {
+        "telegramApi": {
+          "id": "OELNfQgvMPd9iq0i",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1MARN2nlZjuhdyEi-vA_jGZx70wHYICUQLY1Z74Vci9M"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "options": {}
+      },
+      "id": "9ec93fb7-ad02-4167-afed-fe9015e6e32a",
+      "name": "Get All Transactions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3296,
+        576
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NY9XdJ4UbDTVwYNo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const transactions = $input.all();\nconst triggerData = $('Telegram Trigger').first().json;\nconst extractorData = $('Information Extractor').first().json;\n\nlet totalIncome = 0;\nlet totalExpense = 0;\n\nfor (const item of transactions) {\n  const cost = parseFloat(item.json.Cost) || 0;\n  const type = item.json.Type?.toLowerCase();\n  \n  if (type === 'income') {\n    totalIncome += cost;\n  } else if (type === 'expense') {\n    totalExpense += cost;\n  }\n}\n\nconst balance = totalIncome - totalExpense;\n\nreturn [{\n  json: {\n    totalIncome,\n    totalExpense,\n    balance,\n    transactionCount: transactions.length,\n    chatId: triggerData.message.chat.id,\n    expenseType: extractorData.output.type,\n    expenseDescription: extractorData.output.description,\n    expenseCost: extractorData.output.cost\n  }\n}];"
+      },
+      "id": "41b8b3fe-f926-4a0b-8c98-3a6fbcd85161",
+      "name": "Calculate Totals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        576
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get All Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Transactions": {
+      "main": [
+        [
+          {
+            "node": "Calculate Totals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Totals": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "c23d739d-d658-4228-bea5-321f0b39f53e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1b4c2cb418c046df228f6e55ac9120e0bc887ad03b33e6ef46143b0f6f539993"
+  },
+  "id": "VWfIYhLF1rrZSmEa",
+  "tags": []
+}
